@@ -12,3 +12,13 @@ class Player
     letter
   end
 end
+
+class AIPlayer < Player
+  def initialize(name, dictionary = 'dictionary.txt')
+    @name = name
+    @guesses = false
+    @dictionary = dictionary
+  end
+
+  
+end
