@@ -1,14 +1,12 @@
 require 'io/console'
 
 class Game
-  attr_reader :game_over
-
-  def initialize(players, game_mode = 2)
+  def initialize(players)
     @player_sets_word = who_sets_word(players)
     @player_guesses = who_guesses(players)
     @game_over = false
     @tries = 0
-    @game_mode = game_mode
+    # @game_mode = game_mode
   end
 
   def who_sets_word(players)
@@ -20,23 +18,11 @@ class Game
   end
 
   def ask_for_word
-    puts "#{@player_sets_word.name} what will the word be?"
-    @target_word = STDIN.noecho(&:gets).chomp.downcase.split('')
-  end
-
-  def ai_set_word
-    dictionary = IO.read('dictionary.txt')
-    word_array = dictionary.split(/\r?\n/)
-    sorted_words = word_array.select{|word| word.length < 13 && word.length > 4}
-    @target_word = sorted_words.sample.split('')
+    @target_word = @player_sets_word.select_word
   end
 
   def establish_word
-    if @game_mode == 1
-      ai_set_word
-    else
-      ask_for_word
-    end
+    ask_for_word
     @guess_bag = @target_word.map{|letter| "_"}
     @used_letters = []
   end
@@ -90,37 +76,45 @@ class Game
     handle_turn(@player_guesses.ask_for_letter)
   end
 
+  def play
+    establish_word
+
+    while !@game_over
+      execute
+    end
+  end
+
   # def print_mode_menu
   #   puts "Welcome to hangman!\nSelect the play mode:\n1. Single Player\n2. Multiplayer\n\n"
   # end
 
-  def self.set_mode
-    puts "Welcome to hangman!\nSelect the play mode:\n1. Single Player\n2. Multiplayer\n\n"
-    game_mode = gets.chomp.to_i
-  end
+  # def set_mode
+  #   puts "Welcome to hangman!\nSelect the play mode:\n1. Single Player\n2. Multiplayer\n\n"
+  #   @game_mode = gets.chomp.to_i
+  # end
 
-  def self.single_player_mode
-    puts "Oh man, you will be playing against HAL-3000\nGood luck... I mean, what is your name?"
-    player_name = gets.chomp
-    [{name: player_name, guesses: true}, {name: 'HAL-3000', guesses: false}]
-  end
+  # def self.single_player_mode
+  #   puts "Oh man, you will be playing against HAL-3000\nGood luck... I mean, what is your name?"
+  #   player_name = gets.chomp
+  #   [{name: player_name, guesses: true}, {name: 'HAL-3000', guesses: false}]
+  # end
 
-  def self.multiplayer_mode
-    puts "What is the name of the player who will set the word?"
-    first_player = gets.chomp
-    puts "Great! What is the name of player that will guess the word?"
-    second_player = gets.chomp
-    [{name: first_player, guesses: false}, {name: second_player, guesses: true}]
-  end
+  # def self.multiplayer_mode
+  #   puts "What is the name of the player who will set the word?"
+  #   first_player = gets.chomp
+  #   puts "Great! What is the name of player that will guess the word?"
+  #   second_player = gets.chomp
+  #   [{name: first_player, guesses: false}, {name: second_player, guesses: true}]
+  # end
 
-  def self.ask_for_players_info(game_mode)
-    case game_mode
-      when 1
-        self.single_player_mode
-      when 2
-        self.multiplayer_mode
-      else
-        puts "You suck"
-    end
-  end
+  # def self.ask_for_players_info(game_mode)
+  #   case game_mode
+  #     when 1
+  #       self.single_player_mode
+  #     when 2
+  #       self.multiplayer_mode
+  #     else
+  #       puts "You suck"
+  #   end
+  # end
 end
