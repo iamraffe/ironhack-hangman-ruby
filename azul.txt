@@ -1,0 +1,6 @@
+player_sets_word: #<AIPlayer:0x007fdf56ff2818>
+player_guesses: #<Player:0x007fdf56ff2840>
+tries: 0
+used_letters: []
+guess_bag: ["_", "_", "_", "_", "_", "_"]
+target_word: ["b", "r", "a", "n", "c", "h"]

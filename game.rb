@@ -1,12 +1,14 @@
 require 'io/console'
 
 class Game
-  def initialize(players)
+  def initialize(players, target_word = [], guess_bag = [], tries = 0, used_letters = [])
     @player_sets_word = who_sets_word(players)
     @player_guesses = who_guesses(players)
     @game_over = false
-    @tries = 0
-    # @game_mode = game_mode
+    @tries = tries
+    @used_letters = used_letters
+    @guess_bag = guess_bag
+    @target_word = target_word
   end
 
   def who_sets_word(players)
@@ -24,7 +26,6 @@ class Game
   def establish_word
     ask_for_word
     @guess_bag = @target_word.map{|letter| "_"}
-    @used_letters = []
   end
 
   def print_board
@@ -65,6 +66,37 @@ class Game
     end
   end
 
+  def save_game?
+    puts "\nDo you wish to save the current game?\n\n1. Yes\n2. No\n"
+    gets.chomp.to_i == 1 ? true : false
+  end
+
+  def ask_for_filename
+    puts "Give me the name of the file you wish to save the game\n "
+    filename = gets.chomp
+    filename
+  end
+
+  def prepare_variables
+    {player_sets_word: @player_sets_word, player_guesses: @player_guesses, tries: @tries, used_letters: @used_letters, guess_bag: @guess_bag, target_word: @target_word}
+  end
+
+  def write_to_file(game_variables, filename)
+    game_variables.each do |key, vals|
+      File.open(filename, 'a') { |f| f.write("#{key}: #{vals}\n") }
+      # File.open("#{key}.txt", 'w') { |file| file.puts *vals }
+    end
+  end
+
+  def save_game
+    filename = ask_for_filename
+    binding.pry
+    game_variables = prepare_variables
+    write_to_file(game_variables, filename)
+    @game_over = true
+    puts "Game saved for later!"
+  end
+
   def handle_turn(user_input)
     @used_letters.push(user_input)
     handle_comparison(user_input)
@@ -73,48 +105,17 @@ class Game
 
   def execute
     print_board
-    handle_turn(@player_guesses.ask_for_letter)
+    if save_game?
+      save_game
+    else
+      handle_turn(@player_guesses.ask_for_letter)
+    end
   end
 
   def play
     establish_word
-
     while !@game_over
       execute
     end
   end
-
-  # def print_mode_menu
-  #   puts "Welcome to hangman!\nSelect the play mode:\n1. Single Player\n2. Multiplayer\n\n"
-  # end
-
-  # def set_mode
-  #   puts "Welcome to hangman!\nSelect the play mode:\n1. Single Player\n2. Multiplayer\n\n"
-  #   @game_mode = gets.chomp.to_i
-  # end
-
-  # def self.single_player_mode
-  #   puts "Oh man, you will be playing against HAL-3000\nGood luck... I mean, what is your name?"
-  #   player_name = gets.chomp
-  #   [{name: player_name, guesses: true}, {name: 'HAL-3000', guesses: false}]
-  # end
-
-  # def self.multiplayer_mode
-  #   puts "What is the name of the player who will set the word?"
-  #   first_player = gets.chomp
-  #   puts "Great! What is the name of player that will guess the word?"
-  #   second_player = gets.chomp
-  #   [{name: first_player, guesses: false}, {name: second_player, guesses: true}]
-  # end
-
-  # def self.ask_for_players_info(game_mode)
-  #   case game_mode
-  #     when 1
-  #       self.single_player_mode
-  #     when 2
-  #       self.multiplayer_mode
-  #     else
-  #       puts "You suck"
-  #   end
-  # end
 end
